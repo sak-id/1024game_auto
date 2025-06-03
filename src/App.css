@@ -42,18 +42,25 @@
 }
 
 /* ● グリッド本体 */
+
 .grid-container {
   display: grid;
-  /* 4行×4列の正方形セル (4行×4列) をつくる */
-  grid-template-rows: repeat(4, 1fr);        /* 行を 4 分割 */
-  grid-template-columns: repeat(4, 1fr);     /* 列を 4 分割 */
-  gap: 8px;                                   /* セル間のスペース（任意で調整） */
-  background-color: #bbada0;                  /* グリッド背景色 */
-  padding: 8px;                               /* グリッド周囲の余白 */
-  border-radius: 6px;                         /* 角を丸める */
-  width: 400px;   /* 任意：全体の幅を固定したい場合は px や % で指定 */
-  height: 400px;  /* 任意：全体の高さを幅と合わせる */
-  position: relative; /* もし Tile のアニメーションで絶対配置が必要な場合など */
+  /* inline style で grid-template-columns/rows を制御 */
+  gap: 8px;                /* マスとマスの間のスペース */
+  background-color: #bbada0; /* 盤面背景色 */
+  padding: 8px;            /* 盤面外周からの余白 */
+  border-radius: 8px;
+  /* 盤面全体の幅を固定（タイルサイズ × size + gap）:
+     1fr を使うと container の width を指定し、各セルが自動で等分される */
+  max-width: 96vw;         /* 画面幅に合わせて自動リサイズ */
+  aspect-ratio: 1;         /* 正方形を保つ */
+  margin: 0 auto;          /* 中央揃え */
+}
+
+@media (min-width: 500px) {
+  .grid-container {
+    width: 400px; /* ある程度大きな画面では 400px 固定にする */
+  }
 }
 
 /* ● タイル（セル） の共通スタイル */

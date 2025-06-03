@@ -25,6 +25,7 @@ const Settings: React.FC<SettingsProps> = ({ onStart }) => {
         <label>
           盤面サイズ：
           <select value={size} onChange={(e) => setSize(Number(e.target.value))}>
+            <option value={3}>3 × 3</option>
             <option value={4}>4 × 4</option>
             <option value={5}>5 × 5</option>
             <option value={6}>6 × 6</option>

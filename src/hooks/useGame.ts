@@ -10,8 +10,8 @@ import {
 } from "../lib/gameLogic";
 
 // 効果音ファイルのパス（public/audios 配下に置く想定）
-const MERGE_SOUND = "/public/audios/カーソル移動6.mp3";
-const NEW_TILE_SOUND = "/public/audios/カーソル移動9.mp3";
+const MERGE_SOUND = "/audios/カーソル移動6.mp3";
+const NEW_TILE_SOUND = "/audios/カーソル移動9.mp3";
 
 type Action =
   | { type: "INIT"; options: GameOptions }
