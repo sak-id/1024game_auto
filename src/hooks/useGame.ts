@@ -1,4 +1,3 @@
-// hooks/useGame.ts
 import { useReducer, useEffect } from "react";
 import type { GameState } from "../lib/types";
 import {
@@ -29,6 +28,7 @@ function gameReducer(state: GameState, action: Action): GameState {
         score: 0,
         bestScore: state.bestScore,
         status: "playing",
+        justMergedTiles: [], // 初期状態は合成なし
       };
     }
     case "MOVE_LEFT":
@@ -37,28 +37,36 @@ function gameReducer(state: GameState, action: Action): GameState {
     case "MOVE_DOWN": {
       if (state.status !== "playing") return state;
 
-      // 1. どの方向の move 関数を呼ぶか決定
-      let result;
+      // move 関数を選択して実行
+      let result:
+        | ReturnType<typeof moveLeft>
+        | ReturnType<typeof moveRight>
+        | ReturnType<typeof moveUp>
+        | ReturnType<typeof moveDown>;
       if (action.type === "MOVE_LEFT") result = moveLeft(state.grid);
       else if (action.type === "MOVE_RIGHT") result = moveRight(state.grid);
       else if (action.type === "MOVE_UP") result = moveUp(state.grid);
       else result = moveDown(state.grid);
 
-      const { newGrid, gainedScore } = result;
+      const { newGrid, gainedScore, mergedPositions } = result;
+
+      // グリッドに変化があったかチェック
       const moved = JSON.stringify(newGrid) !== JSON.stringify(state.grid);
       if (!moved) {
-        // 盤面に変化がなければ何もしない
-        return state;
+        // 変化がなければ「合成もなし」として justMergedTiles を空にする
+        return {
+          ...state,
+          justMergedTiles: [],
+        };
       }
 
-      // 2. 合成後に新しいタイルを追加
+      // 合成があったときだけ新しいタイルを追加し、スコアを更新
       const afterAdd = addRandomTile(newGrid);
       const newScore = state.score + gainedScore;
       const newBest = Math.max(state.bestScore, newScore);
 
-      // 3. 勝利／ゲームオーバー判定（後述）を行う
+      // 勝利判定（例: 1024 到達時）
       let newStatus: GameState["status"] = state.status;
-      // ── 例：2048（あるいは1024）に到達したら "won" へ
       for (let r = 0; r < afterAdd.length; r++) {
         for (let c = 0; c < afterAdd.length; c++) {
           if (afterAdd[r][c] === 1024) {
@@ -66,15 +74,19 @@ function gameReducer(state: GameState, action: Action): GameState {
           }
         }
       }
-      // ── 空きセルがなく＆どこにも合成可能なペアがなければ "over"
-      const hasEmpty = afterAdd.some(row => row.some(val => val === 0));
+
+      // 空きセルがなく、どこにも動かせない場合はゲームオーバー
+      const hasEmpty = afterAdd.some((row) => row.some((val) => val === 0));
       if (!hasEmpty) {
-        // 上下左右いずれかに動かせるならゲームオーバーではない
         const canMove =
-          JSON.stringify(moveLeft(afterAdd).newGrid) !== JSON.stringify(afterAdd) ||
-          JSON.stringify(moveRight(afterAdd).newGrid) !== JSON.stringify(afterAdd) ||
-          JSON.stringify(moveUp(afterAdd).newGrid) !== JSON.stringify(afterAdd) ||
-          JSON.stringify(moveDown(afterAdd).newGrid) !== JSON.stringify(afterAdd);
+          JSON.stringify(moveLeft(afterAdd).newGrid) !==
+            JSON.stringify(afterAdd) ||
+          JSON.stringify(moveRight(afterAdd).newGrid) !==
+            JSON.stringify(afterAdd) ||
+          JSON.stringify(moveUp(afterAdd).newGrid) !==
+            JSON.stringify(afterAdd) ||
+          JSON.stringify(moveDown(afterAdd).newGrid) !==
+            JSON.stringify(afterAdd);
         if (!canMove && newStatus !== "won") {
           newStatus = "over";
         }
@@ -85,6 +97,7 @@ function gameReducer(state: GameState, action: Action): GameState {
         score: newScore,
         bestScore: newBest,
         status: newStatus,
+        justMergedTiles: mergedPositions, // 合成されたセル座標を記録
       };
     }
     case "RESET": {
@@ -97,6 +110,7 @@ function gameReducer(state: GameState, action: Action): GameState {
         score: 0,
         bestScore: state.bestScore,
         status: "playing",
+        justMergedTiles: [],
       };
     }
     default:
@@ -111,12 +125,15 @@ export function useGame(size: number) {
     score: 0,
     bestScore: storedBest,
     status: "playing",
+    justMergedTiles: [],
   });
 
+  // マウント時に初期化
   useEffect(() => {
     dispatch({ type: "INIT", size });
   }, [size]);
 
+  // ベストスコアを LocalStorage に保存
   useEffect(() => {
     localStorage.setItem("bestScore", String(state.bestScore));
   }, [state.bestScore]);

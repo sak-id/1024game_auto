@@ -40,7 +40,7 @@ const App: React.FC = () => {
     <div className="app-container">
       <h1>1024 game</h1>
       <ScoreBoard score={state.score} bestScore={state.bestScore} />
-      <Grid grid={state.grid} />
+      <Grid grid={state.grid} justMergedTiles={state.justMergedTiles}/>
       {state.status !== "playing" && (
         <Modal
           status={state.status}

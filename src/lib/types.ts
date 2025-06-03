@@ -8,4 +8,6 @@ export interface GameState {
   score: number;
   bestScore: number;
   status: "playing" | "won" | "over";
+  /** 今ターンで合成が起きたタイルの位置リスト */
+  justMergedTiles: { row: number; col: number }[];
 }
