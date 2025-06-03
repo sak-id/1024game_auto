@@ -1,5 +1,5 @@
 import { useReducer, useEffect } from "react";
-import type { GameState } from "../lib/types";
+import type { GameState, GameOptions } from "../lib/types";
 import {
   createEmptyGrid,
   addRandomTile,
@@ -9,18 +9,26 @@ import {
   moveDown,
 } from "../lib/gameLogic";
 
+// 効果音ファイルのパス（public/audios 配下に置く想定）
+const MERGE_SOUND = "/public/audios/カーソル移動6.mp3";
+const NEW_TILE_SOUND = "/public/audios/カーソル移動9.mp3";
+
 type Action =
-  | { type: "INIT"; size: number }
+  | { type: "INIT"; options: GameOptions }
   | { type: "MOVE_LEFT" }
   | { type: "MOVE_RIGHT" }
   | { type: "MOVE_UP" }
   | { type: "MOVE_DOWN" }
   | { type: "RESET" };
 
-function gameReducer(state: GameState, action: Action): GameState {
+function gameReducer(
+  state: GameState,
+  action: Action
+): GameState {
   switch (action.type) {
     case "INIT": {
-      const empty = createEmptyGrid(action.size);
+      const { size, target, soundOn } = action.options;
+      const empty = createEmptyGrid(size);
       let withTile = addRandomTile(empty);
       withTile = addRandomTile(withTile);
       return {
@@ -28,7 +36,8 @@ function gameReducer(state: GameState, action: Action): GameState {
         score: 0,
         bestScore: state.bestScore,
         status: "playing",
-        justMergedTiles: [], // 初期状態は合成なし
+        justMergedTiles: [],
+        options: { size, target, soundOn },
       };
     }
     case "MOVE_LEFT":
@@ -37,45 +46,61 @@ function gameReducer(state: GameState, action: Action): GameState {
     case "MOVE_DOWN": {
       if (state.status !== "playing") return state;
 
-      // move 関数を選択して実行
+      const { size, target, soundOn } = state.options;
       let result:
-        | ReturnType<typeof moveLeft>
-        | ReturnType<typeof moveRight>
-        | ReturnType<typeof moveUp>
-        | ReturnType<typeof moveDown>;
-      if (action.type === "MOVE_LEFT") result = moveLeft(state.grid);
-      else if (action.type === "MOVE_RIGHT") result = moveRight(state.grid);
-      else if (action.type === "MOVE_UP") result = moveUp(state.grid);
-      else result = moveDown(state.grid);
+        | { newGrid: Grid; gainedScore: number; mergedPositions: { row: number; col: number }[] }
+        | undefined;
 
-      const { newGrid, gainedScore, mergedPositions } = result;
-
-      // グリッドに変化があったかチェック
-      const moved = JSON.stringify(newGrid) !== JSON.stringify(state.grid);
-      if (!moved) {
-        // 変化がなければ「合成もなし」として justMergedTiles を空にする
-        return {
-          ...state,
-          justMergedTiles: [],
-        };
+      // 各方向の move 関数を呼び分け
+      if (action.type === "MOVE_LEFT") {
+        result = moveLeft(state.grid);
+      } else if (action.type === "MOVE_RIGHT") {
+        result = moveRight(state.grid);
+      } else if (action.type === "MOVE_UP") {
+        result = moveUp(state.grid);
+      } else {
+        result = moveDown(state.grid);
       }
 
-      // 合成があったときだけ新しいタイルを追加し、スコアを更新
+      if (!result) return state;
+      const { newGrid, gainedScore, mergedPositions } = result;
+      const moved = JSON.stringify(newGrid) !== JSON.stringify(state.grid);
+      if (!moved) {
+        // 移動がない場合は justMergedTiles だけクリアして返す
+        return { ...state, justMergedTiles: [] };
+      }
+
+      // 合成があれば効果音を鳴らす
+      if (soundOn && mergedPositions.length > 0) {
+        const audio = new Audio(MERGE_SOUND);
+        audio.play().catch(() => {
+          /* 再生エラーは無視 */
+        });
+      }
+
+      // 新タイルを追加する前に addRandomTile、新規タイル生成時にも音を鳴らす
       const afterAdd = addRandomTile(newGrid);
+      if (soundOn) {
+        const audio = new Audio(NEW_TILE_SOUND);
+        audio.play().catch(() => {
+          /* 再生エラーは無視 */
+        });
+      }
+
       const newScore = state.score + gainedScore;
       const newBest = Math.max(state.bestScore, newScore);
 
-      // 勝利判定（例: 1024 到達時）
+      // 勝利判定
       let newStatus: GameState["status"] = state.status;
       for (let r = 0; r < afterAdd.length; r++) {
         for (let c = 0; c < afterAdd.length; c++) {
-          if (afterAdd[r][c] === 1024) {
+          if (afterAdd[r][c] === target) {
             newStatus = "won";
           }
         }
       }
 
-      // 空きセルがなく、どこにも動かせない場合はゲームオーバー
+      // ゲームオーバー判定
       const hasEmpty = afterAdd.some((row) => row.some((val) => val === 0));
       if (!hasEmpty) {
         const canMove =
@@ -97,11 +122,12 @@ function gameReducer(state: GameState, action: Action): GameState {
         score: newScore,
         bestScore: newBest,
         status: newStatus,
-        justMergedTiles: mergedPositions, // 合成されたセル座標を記録
+        justMergedTiles: mergedPositions,
+        options: state.options,
       };
     }
     case "RESET": {
-      const size = state.grid.length;
+      const { size, target, soundOn } = state.options;
       const empty = createEmptyGrid(size);
       let withTile = addRandomTile(empty);
       withTile = addRandomTile(withTile);
@@ -111,6 +137,7 @@ function gameReducer(state: GameState, action: Action): GameState {
         bestScore: state.bestScore,
         status: "playing",
         justMergedTiles: [],
+        options: state.options,
       };
     }
     default:
@@ -118,22 +145,32 @@ function gameReducer(state: GameState, action: Action): GameState {
   }
 }
 
-export function useGame(size: number) {
+export function useGame(
+  size: number,
+  target: number,
+  soundOn: boolean
+): {
+  state: GameState;
+  dispatch: React.Dispatch<Action>;
+} {
   const storedBest = Number(localStorage.getItem("bestScore") || 0);
-  const [state, dispatch] = useReducer(gameReducer, {
+  const initialState: GameState = {
     grid: createEmptyGrid(size),
     score: 0,
     bestScore: storedBest,
     status: "playing",
     justMergedTiles: [],
-  });
+    options: { size, target, soundOn },
+  };
 
-  // マウント時に初期化
+  const [state, dispatch] = useReducer(gameReducer, initialState);
+
+  // 初回マウント時および size/target/soundOn が変わったときに再初期化
   useEffect(() => {
-    dispatch({ type: "INIT", size });
-  }, [size]);
+    dispatch({ type: "INIT", options: { size, target, soundOn } });
+  }, [size, target, soundOn]);
 
-  // ベストスコアを LocalStorage に保存
+  // ベストスコアを localStorage に保存
   useEffect(() => {
     localStorage.setItem("bestScore", String(state.bestScore));
   }, [state.bestScore]);

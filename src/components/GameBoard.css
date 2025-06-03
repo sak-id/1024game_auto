@@ -1,0 +1,36 @@
+/* src/components/GameBoard.css */
+
+.gameboard-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 24px;
+}
+
+.gameboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 400px;
+  margin-bottom: 16px;
+}
+
+.back-button {
+  padding: 6px 12px;
+  background-color: #8f7a66;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.back-button:hover {
+  background-color: #7f6a56;
+}
+
+.gameboard-header h1 {
+  margin: 0;
+  font-size: 1.2rem;
+  color: #776e65;
+}
