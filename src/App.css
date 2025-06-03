@@ -1,0 +1,175 @@
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
+
+.logo {
+  height: 6em;
+  padding: 1.5em;
+  will-change: filter;
+  transition: filter 300ms;
+}
+.logo:hover {
+  filter: drop-shadow(0 0 2em #646cffaa);
+}
+.logo.react:hover {
+  filter: drop-shadow(0 0 2em #61dafbaa);
+}
+
+@keyframes logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  a:nth-of-type(2) .logo {
+    animation: logo-spin infinite 20s linear;
+  }
+}
+
+.card {
+  padding: 2em;
+}
+
+.read-the-docs {
+  color: #888;
+}
+
+/* ● グリッド本体 */
+.grid-container {
+  display: grid;
+  /* 4行×4列の正方形セル (4行×4列) をつくる */
+  grid-template-rows: repeat(4, 1fr);        /* 行を 4 分割 */
+  grid-template-columns: repeat(4, 1fr);     /* 列を 4 分割 */
+  gap: 8px;                                   /* セル間のスペース（任意で調整） */
+  background-color: #bbada0;                  /* グリッド背景色 */
+  padding: 8px;                               /* グリッド周囲の余白 */
+  border-radius: 6px;                         /* 角を丸める */
+  width: 400px;   /* 任意：全体の幅を固定したい場合は px や % で指定 */
+  height: 400px;  /* 任意：全体の高さを幅と合わせる */
+  position: relative; /* もし Tile のアニメーションで絶対配置が必要な場合など */
+}
+
+/* ● タイル（セル） の共通スタイル */
+.tile {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 4px;
+  font-weight: bold;
+  font-size: 1.5rem;
+  color: #776e65;                /* 値が小さいときの文字色 */
+  /* ここで transform や transition を設定しておけばアニメーションをかけやすい */
+  transition: transform 0.1s ease-in-out, background-color 0.1s ease-in-out;
+}
+
+/* タイルの中に数値を表示する span */
+.tile-value {
+  display: block;
+  /* 文字のサイズや余白など好みで微調整可 */
+}
+
+
+/* src/components/Modal.css */
+
+/* 画面全体を覆う半透明オーバーレイ */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* 背景を半透明黒に */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 100; /* 他の要素より手前に表示 */
+}
+
+/* モーダル本体のスタイル */
+.modal-content {
+  background-color: #f9f9f9;
+  padding: 24px 32px;
+  border-radius: 8px;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  min-width: 280px;
+  max-width: 90%;
+}
+
+/* タイトル */
+.modal-title {
+  font-size: 1.5rem;
+  margin-bottom: 12px;
+  color: #333333;
+}
+
+/* 説明文 */
+.modal-description {
+  font-size: 1rem;
+  margin-bottom: 8px;
+  color: #555555;
+}
+
+/* スコア表示 */
+.modal-score {
+  font-size: 1.1rem;
+  margin-bottom: 16px;
+  color: #222222;
+}
+
+/* ボタン */
+.modal-button {
+  background-color: #76c7c0;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 10px 20px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.modal-button:hover {
+  background-color: #5daaaa;
+}
+
+/* src/components/ScoreBoard.css */
+
+/* ScoreBoard 全体を横並びに */
+.scoreboard-container {
+  display: flex;
+  justify-content: center;
+  gap: 16px; /* スコア同士の間隔 */
+  margin-bottom: 16px; /* グリッドとの余白 */
+}
+
+/* スコアを囲むボックス */
+.scorebox {
+  background-color: #bbada0; /* グリッドと同じ背景色に合わせてもOK */
+  border-radius: 4px;
+  padding: 8px 16px;
+  text-align: center;
+  min-width: 80px;
+}
+
+/* タイトル（SCORE や BEST） */
+.score-title {
+  font-size: 0.8rem;
+  letter-spacing: 1px;
+  color: #eee4da;
+  margin-bottom: 4px;
+}
+
+/* 数値そのもの */
+.score-value {
+  font-size: 1.4rem;
+  font-weight: bold;
+  color: #ffffff;
+}
