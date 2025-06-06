@@ -1,5 +1,5 @@
 import { useReducer, useEffect } from "react";
-import type { GameState, GameOptions } from "../lib/types";
+import type { GameState, GameOptions, Grid } from "../lib/types";
 import {
   createEmptyGrid,
   addRandomTile,

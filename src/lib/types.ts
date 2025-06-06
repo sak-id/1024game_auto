@@ -18,3 +18,5 @@ export interface GameOptions {
   target: number;    // 目標値（例：1024）
   soundOn: boolean;  // 効果音を鳴らすかどうか
 }
+/** スワイプ方向を表すアクション */
+export type MoveType = "MOVE_LEFT" | "MOVE_RIGHT" | "MOVE_UP" | "MOVE_DOWN";
