@@ -34,3 +34,57 @@
   font-size: 1.2rem;
   color: #776e65;
 }
+
+/* src/components/GameBoard.css */
+
+/* -----------------------------
+   自動プレイ切り替えボタン周りのレイアウト
+----------------------------- */
+.auto-controls {
+  margin: 16px 0;
+  text-align: center; /* ボタンを中央に寄せる */
+}
+
+/* -----------------------------
+   .auto-button の基本スタイル
+----------------------------- */
+.auto-button {
+  padding: 8px 16px;          /* ボタン内の余白 */
+  font-size: 1rem;            /* フォントサイズ */
+  font-weight: bold;          /* 太字 */
+  border: none;               /* 枠線なし */
+  border-radius: 4px;         /* 角を丸める */
+  cursor: pointer;            /* ホバー時にポインタ表示 */
+  transition: background-color 0.2s ease, opacity 0.2s ease;
+}
+
+/* -----------------------------
+   自動プレイ停止時 (OFF 状態) の配色
+----------------------------- */
+.auto-button.off {
+  background-color: #8f7a66;  /* 茶系のベース色 */
+  color: #fff;                /* 文字は白 */
+}
+
+/* -----------------------------
+   自動プレイ中 (ON 状態) の配色
+----------------------------- */
+.auto-button.on {
+  background-color: #f65e3b;  /* オレンジ系のアクセント色 */
+  color: #fff;
+}
+
+/* -----------------------------
+   ホバー時のエフェクト
+----------------------------- */
+.auto-button:hover {
+  opacity: 0.85;              /* 少し透ける */
+}
+
+/* -----------------------------
+   フォーカス時のアウトラインをカスタマイズ
+----------------------------- */
+.auto-button:focus {
+  outline: 2px solid #ffd27f; /* 薄い黄色の枠線を追加 */
+  outline-offset: 2px;
+}

@@ -1,0 +1,59 @@
+/* src/components/Modal.css */
+
+/* ① モーダルオーバーレイ（画面全体を覆う半透明レイヤー） */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  /* 少し透過度を下げて、盤面を背面にはっきり見えるように */
+  background-color: rgba(0, 0, 0, 0.2);
+  display: flex;
+  justify-content: center;
+  align-items: flex-start; /* 中央ではなく、上寄せにする */
+  padding-top: 40px;       /* 上から 40px 下げて表示 */
+  z-index: 1000;
+}
+
+/* ② モーダル本体のボックス */
+/*    盤面幅が 400px 程度なら、モーダル幅は 300px くらいに。 */
+.modal-container {
+  background-color: #faf8f1;  /* 完全不透明の背景にしてテキストを読みやすく */
+  width: 300px;               /* 盤面より若干小さく */
+  max-width: 90%;             /* 小さい画面でもはみ出さないように */
+  border-radius: 8px;
+  padding: 24px 24px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  text-align: center;
+}
+
+/* 見出し */
+.modal-container h2 {
+  margin-bottom: 12px;
+  font-size: 1.5rem;
+  color: #776e65;
+}
+
+/* メッセージ */
+.modal-container p {
+  margin: 8px 0;
+  font-size: 1.2rem;
+  color: #403c38;
+}
+
+/* リスタートボタン */
+.modal-container .restart-button {
+  margin-top: 16px;
+  padding: 8px 16px;
+  background-color: #8f7a66;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease, opacity 0.2s ease;
+}
+.modal-container .restart-button:hover {
+  opacity: 0.8;
+}

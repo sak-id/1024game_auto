@@ -1,5 +1,7 @@
 // src/components/Modal.tsx
 import React from "react";
+import "./Modal.css";
+
 
 interface ModalProps {
   /** "won"：目標タイル到達（クリア） / "over"：盤面に動かせるところがなくなった（ゲームオーバー） */
@@ -11,22 +13,18 @@ interface ModalProps {
 }
 
 const Modal: React.FC<ModalProps> = ({ status, score, onRestart }) => {
-  // モーダル内に表示するメッセージをステータスに応じて設定
-  const titleText = status === "won" ? "🎉 クリア！おめでとうございます 🎉" : "💥 ゲームオーバー 💥";
-  const descriptionText =
-    status === "won"
-      ? "目標のタイルを作成しました。続けますか？"
-      : "これ以上動かせる場所がありません。";
+  const title = status === "won" ? "おめでとう！クリア！" : "ゲームオーバー";
+  const message = status === "won"
+    ? `あなたのスコア: ${score}`
+    : `残念、負けちゃいました。スコア: ${score}`;
 
   return (
-    // オーバーレイ部分（背景を半透明にして中央にモーダルを配置）
     <div className="modal-overlay">
-      <div className="modal-content">
-        <h2 className="modal-title">{titleText}</h2>
-        <p className="modal-description">{descriptionText}</p>
-        <p className="modal-score">あなたのスコア：{score}</p>
-        <button className="modal-button" onClick={onRestart}>
-          もう一度プレイ
+      <div className="modal-container">
+        <h2>{title}</h2>
+        <p>{message}</p>
+        <button className="restart-button" onClick={onRestart}>
+          もう一度遊ぶ
         </button>
       </div>
     </div>
