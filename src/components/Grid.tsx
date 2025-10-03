@@ -1,28 +1,33 @@
-import React from "react";
-import type { Grid as GridType } from "../lib/types";
+import React, { useMemo } from "react";
+import type { Grid as GridType, Position } from "../lib/types";
 import Tile from "./Tile";
+
 interface GridProps {
   grid: GridType;
-  justMergedTiles: { row: number; col: number }[];
+  justMergedTiles: Position[];
 }
 
 const Grid: React.FC<GridProps> = ({ grid, justMergedTiles }) => {
-  const size = grid.length; // 3 なら 3×3、4 なら 4×4…
+  const size = grid.length;
+  const mergedSet = useMemo(() => {
+    const entries = new Set<string>();
+    for (const { row, col } of justMergedTiles) {
+      entries.add(`${row}:${col}`);
+    }
+    return entries;
+  }, [justMergedTiles]);
 
   return (
     <div
       className="grid-container"
       style={{
-        // "size" によって行・列を自動で同じ幅に繰り返す
         gridTemplateColumns: `repeat(${size}, 1fr)`,
         gridTemplateRows: `repeat(${size}, 1fr)`,
       }}
     >
       {grid.map((row, rIdx) =>
         row.map((cell, cIdx) => {
-          const mergedHere = justMergedTiles.some(
-            (pos) => pos.row === rIdx && pos.col === cIdx
-          );
+          const mergedHere = mergedSet.has(`${rIdx}:${cIdx}`);
           return (
             <Tile
               key={`${rIdx}-${cIdx}`}

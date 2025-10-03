@@ -2,6 +2,15 @@
 export type CellValue = number;
 // 盤面は行数×列数の二次元配列とする
 export type Grid = CellValue[][];
+
+export interface Position {
+  row: number;
+  col: number;
+}
+
+export interface SpawnedTile extends Position {
+  value: number;
+}
 // ゲーム状態の型
 export interface GameState {
   grid: Grid;
@@ -9,7 +18,7 @@ export interface GameState {
   bestScore: number;
   status: "playing" | "won" | "over";
   /** 今ターンで合成が起きたタイルの位置リスト */
-  justMergedTiles: { row: number; col: number }[];
+  justMergedTiles: Position[];
   options: GameOptions;
 }
 /** ゲーム設定情報をまとめた型 */
