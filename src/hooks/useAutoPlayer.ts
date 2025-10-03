@@ -25,8 +25,14 @@ export function useAutoPlayer(
 
   latestState.current = state;
 
+  const ensureWorker = useCallback(() => {
+    if (!workerRef.current) {
+      workerRef.current = createAIWorker();
+    }
+    return workerRef.current;
+  }, []);
+
   useEffect(() => {
-    workerRef.current = createAIWorker();
     return () => {
       workerRef.current?.terminate();
       workerRef.current = null;
@@ -50,7 +56,7 @@ export function useAutoPlayer(
       return;
     }
 
-    const worker = workerRef.current;
+    const worker = ensureWorker();
     if (!worker) {
       stopAuto();
       return;
@@ -81,7 +87,7 @@ export function useAutoPlayer(
       window.clearInterval(intervalId);
       worker.removeEventListener("message", handleMessage);
     };
-  }, [autoMode, intervalMs, move, searchDepth, stopAuto]);
+  }, [autoMode, ensureWorker, intervalMs, move, searchDepth, stopAuto]);
 
   useEffect(() => {
     if (state.status !== "playing" && autoMode) {

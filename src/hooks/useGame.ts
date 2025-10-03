@@ -1,4 +1,4 @@
-import { useReducer, useEffect, useCallback, useMemo } from "react";
+import { useReducer, useEffect, useCallback, useMemo, useState } from "react";
 import type {
   GameOptions,
   GameState,
@@ -129,29 +129,33 @@ function buildInitialGrid(size: number): Grid {
 }
 
 export function useGame(size: number, target: number, soundOn: boolean) {
-  const storedBest = useMemo(() => {
+  const [storedBest] = useState(() => {
     if (typeof window === "undefined") {
       return 0;
     }
     return Number(window.localStorage.getItem("bestScore") || 0);
-  }, []);
+  });
 
   const initialOptions: GameOptions = useMemo(
     () => ({ size, target, soundOn }),
     [size, target, soundOn]
   );
 
-  const [state, dispatch] = useReducer(gameReducer, {
-    grid: createEmptyGrid(size),
-    score: 0,
-    bestScore: storedBest,
-    status: "playing",
-    justMergedTiles: [],
-    options: initialOptions,
-    pendingSpawn: false,
-    mergeSoundToken: 0,
-    spawnSoundToken: 0,
-  });
+  const [state, dispatch] = useReducer(
+    gameReducer,
+    undefined,
+    (): InternalState => ({
+      grid: buildInitialGrid(size),
+      score: 0,
+      bestScore: storedBest,
+      status: "playing",
+      justMergedTiles: [],
+      options: initialOptions,
+      pendingSpawn: false,
+      mergeSoundToken: 0,
+      spawnSoundToken: 0,
+    })
+  );
 
   const publicState: GameState = useMemo(
     () => ({
@@ -164,6 +168,12 @@ export function useGame(size: number, target: number, soundOn: boolean) {
     }),
     [state.grid, state.score, state.bestScore, state.status, state.justMergedTiles, state.options]
   );
+
+  const {
+    size: currentSize,
+    target: currentTarget,
+    soundOn: currentSound,
+  } = state.options;
 
   const initializeGame = useCallback(
     (options: GameOptions) => {
@@ -185,8 +195,23 @@ export function useGame(size: number, target: number, soundOn: boolean) {
   }, [initializeGame, state.options]);
 
   useEffect(() => {
+    if (
+      currentSize === size &&
+      currentTarget === target &&
+      currentSound === soundOn
+    ) {
+      return;
+    }
     initializeGame({ size, target, soundOn });
-  }, [initializeGame, size, target, soundOn]);
+  }, [
+    currentSize,
+    currentTarget,
+    currentSound,
+    initializeGame,
+    size,
+    target,
+    soundOn,
+  ]);
 
   useEffect(() => {
     if (!state.pendingSpawn) {
